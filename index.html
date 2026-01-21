@@ -1,0 +1,1320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Collect The Brainrots</title>
+
+<style>
+  :root{
+    --panel: rgba(0,0,0,.38);
+    --panel2: rgba(255,255,255,.10);
+    --stroke: rgba(255,255,255,.22);
+    --text: #eafcff;
+    --blue: #2b8cff;
+    --green: #22c55e;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color:var(--text);
+    min-height:100vh;
+    background:
+      radial-gradient(900px 600px at 20% 25%, rgba(80,255,240,.18), transparent 60%),
+      radial-gradient(800px 500px at 80% 35%, rgba(120,180,255,.20), transparent 55%),
+      linear-gradient(180deg, #033a96 0%, #067fbd 32%, #05b6b1 56%, #11b981 100%);
+    overflow-x:hidden;
+  }
+  /* bubbles overlay */
+  body::after{
+    content:"";
+    position:fixed; inset:0;
+    pointer-events:none;
+    opacity:.14;
+    background-image:
+      radial-gradient(circle at 10% 80%, rgba(255,255,255,.9) 0 2px, transparent 3px),
+      radial-gradient(circle at 20% 65%, rgba(255,255,255,.8) 0 3px, transparent 4px),
+      radial-gradient(circle at 32% 75%, rgba(255,255,255,.7) 0 2px, transparent 3px),
+      radial-gradient(circle at 60% 70%, rgba(255,255,255,.8) 0 3px, transparent 4px),
+      radial-gradient(circle at 78% 78%, rgba(255,255,255,.7) 0 2px, transparent 3px),
+      radial-gradient(circle at 90% 66%, rgba(255,255,255,.85) 0 4px, transparent 5px);
+    animation: floatBubbles 14s linear infinite;
+  }
+  @keyframes floatBubbles{ 0%{transform:translateY(0)} 100%{transform:translateY(-120px)} }
+
+  header{
+    position:sticky; top:0; z-index:20;
+    background: linear-gradient(90deg, rgba(0,40,100,.92), rgba(0,135,200,.88));
+    border-bottom:1px solid var(--stroke);
+    padding:10px 12px;
+    display:flex; gap:10px; flex-wrap:wrap;
+    align-items:center; justify-content:space-between;
+    box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  }
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .pill{
+    background: rgba(0,0,0,.22);
+    border:1px solid rgba(255,255,255,.20);
+    padding:8px 10px;
+    border-radius:999px;
+    font-weight:900;
+    white-space:nowrap;
+  }
+
+  button, input{
+    border:none;
+    border-radius:12px;
+    padding:10px 12px;
+    font-weight:950;
+    color:white;
+    background: rgba(0,0,0,.22);
+    border:1px solid rgba(255,255,255,.22);
+  }
+  button{cursor:pointer}
+  button:hover{filter:brightness(1.06)}
+  button:disabled{opacity:.45; cursor:not-allowed}
+  button.primary{background: rgba(11,94,215,.95)}
+  button.good{background: rgba(34,197,94,.92)}
+  button.warn{background: rgba(239,68,68,.92)}
+  button.blue{background: rgba(59,130,246,.92)}
+
+  main{
+    display:grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap:12px;
+    padding:12px;
+  }
+  @media (max-width: 980px){ main{grid-template-columns:1fr} }
+
+  .panel{
+    background: var(--panel);
+    border:1px solid var(--stroke);
+    border-radius:16px;
+    padding:12px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.28);
+  }
+  h2{margin:0 0 8px 0}
+  .sub{opacity:.92;font-size:13px;margin-bottom:8px}
+  .divider{height:1px; background: rgba(255,255,255,.18); margin:10px 0}
+
+  #alerts{
+    margin:12px;
+    padding:10px 12px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.20);
+    background: rgba(0,0,0,.22);
+    font-weight:950;
+    text-align:center;
+    min-height:42px;
+  }
+  .alert-godly{color:#ffe100; text-shadow:0 0 10px rgba(255,225,0,.40)}
+  .alert-secret{color:#ff6a00; text-shadow:0 0 10px rgba(255,106,0,.40)}
+
+  .tabs{display:flex; gap:8px; flex-wrap:wrap; margin:8px 0}
+  .tab{
+    padding:8px 10px;
+    border-radius:999px;
+    cursor:pointer;
+    font-weight:950;
+    background: rgba(0,0,0,.18);
+    border:1px solid rgba(255,255,255,.20);
+  }
+  .tab.active{background: rgba(11,94,215,.86)}
+
+  .grid{display:grid; grid-template-columns:minmax(0,1fr); gap:10px}
+  .card{
+    background: var(--panel2);
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:16px;
+    padding:10px;
+    display:flex; gap:10px;
+    align-items:center;
+  }
+  .card img{
+    width:76px; height:76px;
+    border-radius:14px;
+    background: rgba(0,0,0,.18);
+    border:1px solid rgba(255,255,255,.18);
+    object-fit:cover;
+  }
+  .meta{min-width:0}
+  .name{font-weight:950; line-height:1.15; margin-bottom:4px; word-break:break-word}
+  .line{opacity:.92; font-size:12px}
+  .tag{
+    display:inline-block;
+    padding:3px 8px;
+    border-radius:999px;
+    background: rgba(0,0,0,.22);
+    border:1px solid rgba(255,255,255,.18);
+    font-size:12px;
+    font-weight:950;
+    margin-top:6px;
+  }
+  .actions{margin-left:auto; display:flex; flex-direction:column; gap:6px; align-items:flex-end}
+  .actions button{padding:8px 10px; border-radius:12px}
+  .small{font-size:12px; opacity:.92}
+
+  .list{
+    display:flex; flex-direction:column; gap:8px;
+    max-height: 58vh;
+    overflow:auto;
+    padding-right:6px;
+  }
+
+  .baseSkin{
+    border-radius:16px;
+    padding:12px;
+    border:1px solid rgba(255,255,255,.22);
+    font-weight:950;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    background: rgba(0,0,0,.22);
+  }
+  select{
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.22);
+    background: rgba(0,0,0,.22);
+    color:white;
+    font-weight:900;
+  }
+  .codeRow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  input{min-width:160px}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="row">
+    <div class="pill">🧠 Collect The Brainrots</div>
+    <div class="pill">💰 $<span id="money">0</span></div>
+    <div class="pill">⚡ $<span id="mps">0</span>/sec</div>
+    <div class="pill">🏠 Slots: <span id="slotsUsed">0</span>/<span id="slotsMax">10</span></div>
+    <div class="pill">🔁 Rebirth: <span id="rebirth">1</span></div>
+    <div class="pill">🎲 Rolls: <span id="rolls">0</span></div>
+    <div class="pill">🍀 Luck: <span id="luck">1x</span> <span id="luckTime"></span></div>
+    <div class="pill">🌍 World: <span id="worldName">Park</span></div>
+  </div>
+  <div class="row">
+    <button class="primary" id="btnSpawn">Spawn 1</button>
+    <button id="btnIndex">Index</button>
+    <button class="good" id="btnRebirth">Rebirth</button>
+    <button class="warn" id="btnReset">Reset Save</button>
+  </div>
+</header>
+
+<div id="alerts" class="small">Spawn 1 → try to catch. Miss = it flees and disappears.</div>
+
+<main>
+  <section class="panel">
+    <h2>🌍 World Spawns</h2>
+    <div class="sub">Only 1 spawn at a time. Godly/Secret alerts only. Catch chance is lower for rarer brainrots.</div>
+    <div id="spawnGrid" class="grid"></div>
+
+    <div class="divider"></div>
+    <h2>🗺️ Worlds</h2>
+    <div class="tabs" id="worldTabs"></div>
+
+    <div class="divider"></div>
+    <h2>🍀 Luck Shop (15 minutes)</h2>
+    <div class="sub">Boosts catch chance only. No brainrot shop.</div>
+    <div id="luckShop" class="grid"></div>
+
+    <div class="divider"></div>
+    <h2>🎟️ Codes</h2>
+    <div class="sub">Code: <b>RELEASE</b> → free 🌈 Rainbow 🍕👾 Noobini Pizzanini (one time).</div>
+    <div class="codeRow">
+      <input id="codeInput" placeholder="Enter code..."/>
+      <button class="blue" id="btnRedeem">Redeem</button>
+    </div>
+  </section>
+
+  <section class="panel" id="basePanel">
+    <h2>🏠 Your Base</h2>
+    <div class="sub">
+      Level up brainrots (Lv 1→100) using money. Higher level = more earnings.
+      <br>Lucky Presents make <b>$0/sec</b>, but you can <b>OPEN</b> them to get a new brainrot inside (unobtainable otherwise).
+    </div>
+
+    <div id="baseSkinBox" class="baseSkin">
+      <div>🎨 Base Skin: <span id="baseSkinName">Default</span></div>
+      <div class="row" style="gap:8px">
+        <select id="baseSkinSelect"></select>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>🧱 Owned</h2>
+    <div id="baseList" class="list"></div>
+
+    <div class="divider"></div>
+
+    <h2>🧾 Index</h2>
+    <div class="sub">Shows everything + variant indexing progress.</div>
+    <div id="indexBox" class="list" style="display:none"></div>
+  </section>
+</main>
+
+<script>
+/* ===========================
+   UTIL
+=========================== */
+function blobToRaw(url){
+  const m = String(url||"").match(/^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+)$/);
+  return m ? `https://raw.githubusercontent.com/${m[1]}/${m[2]}/${m[3]}` : url;
+}
+function fmt(n){ return Math.floor(n).toLocaleString(); }
+function nowMs(){ return Date.now(); }
+function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
+
+/* ===========================
+   VARIANTS (your final multipliers)
+   Gold 1.5x, Diamond 2x, Emerald 2.5x, Ruby 3x, Rainbow 6x
+=========================== */
+const VARIANTS = [
+  { key:"Normal",  label:"Normal",        mult:1.0,  roll:1 },
+  { key:"Gold",    label:"⭐ Gold ⭐",     mult:1.5,  roll:0.12 },
+  { key:"Diamond", label:"💎 Diamond 💎", mult:2.0,  roll:0.05 },
+  { key:"Emerald", label:"💚 Emerald 💚", mult:2.5,  roll:0.025 },
+  { key:"Ruby",    label:"🔴 Ruby 🔴",    mult:3.0,  roll:0.012 },
+  { key:"Rainbow", label:"🌈 Rainbow 🌈", mult:6.0,  roll:0.004 }
+];
+function getVariantByKey(k){ return VARIANTS.find(v=>v.key===k) || VARIANTS[0]; }
+function rollVariant(){
+  // roll rarest first
+  const order = ["Rainbow","Ruby","Emerald","Diamond","Gold"];
+  for(const k of order){
+    const v = getVariantByKey(k);
+    if(Math.random() < v.roll) return v;
+  }
+  return VARIANTS[0];
+}
+
+/* ===========================
+   CATCH CHANCES (rarer = lower)
+=========================== */
+const CATCH = {
+  Present: 0.35,
+  Common: 0.55,
+  Uncommon: 0.48,
+  Rare: 0.38,
+  Epic: 0.28,
+  Legendary: 0.20,
+  Mythic: 0.15,
+  Godly: 0.10,
+  Secret: 0.06,
+  Exotic: 0.04
+};
+
+/* ===========================
+   WORLDS
+=========================== */
+const WORLDS = [
+  { key:"Park", label:"🌳 Park" },
+  { key:"Beach", label:"🏖️ Beach" },
+  { key:"Desert", label:"🏜️ Desert" },
+  { key:"City", label:"🏙️ City" },
+  { key:"Void", label:"🌌 Void" }
+];
+let currentWorld = "Park";
+
+function worldRarityBiasMultiplier(rarity){
+  if(currentWorld==="Park"){
+    if(rarity==="Common"||rarity==="Uncommon"||rarity==="Rare") return 1.10;
+  }
+  if(currentWorld==="Beach"){
+    if(rarity==="Epic"||rarity==="Legendary") return 1.08;
+  }
+  if(currentWorld==="Desert"){
+    if(rarity==="Rare"||rarity==="Epic") return 1.08;
+  }
+  if(currentWorld==="City"){
+    if(rarity==="Godly") return 1.10;
+  }
+  if(currentWorld==="Void"){
+    if(rarity==="Secret") return 1.18;
+    if(rarity==="Exotic") return 1.10;
+  }
+  return 1;
+}
+function worldAffinityMultiplier(brainrot){
+  const n = (brainrot.name||"").toLowerCase();
+  const has = (...words)=>words.some(w=>n.includes(w));
+  const emojiStr = brainrot.name || "";
+
+  const vibe = {
+    beach: ["🌊","🏖️","🐟","🐙","🦈","🐊","🦑","🍣","💧"],
+    desert:["🏜️","🌵","🦁","🐪","🍋"],
+    city:  ["🏙️","📺","📠","📱","📲","🚌","🚂","🚜","🎰","📟"],
+    park:  ["🌳","🦌","🐦","🦉","🐘","🦝","🐹","🐵","🦧","🍌","🥝","🍍","🥭","🍇","🍉","🥑","🍓"],
+    void:  ["🌌","👻","💀","☢️","🪨","☄️","👀","🚪","🕋"]
+  };
+
+  let mult = 1;
+  if(currentWorld === "Beach"){
+    if(vibe.beach.some(e=>emojiStr.includes(e)) || has("aqua","octo","shark","orca","croc","sushi","medus")) mult *= 1.45;
+  }
+  if(currentWorld === "Desert"){
+    if(vibe.desert.some(e=>emojiStr.includes(e)) || has("cactus","lion","camel","sand")) mult *= 1.45;
+  }
+  if(currentWorld === "City"){
+    if(vibe.city.some(e=>emojiStr.includes(e)) || has("tele","fax","hotspot","bus","train","tractor","machine","pager")) mult *= 1.45;
+  }
+  if(currentWorld === "Park"){
+    if(vibe.park.some(e=>emojiStr.includes(e)) || has("banana","kiwi","pineapple","mango","grape","fruit","owl","antelop","elephant","straw","watermelon","avocado")) mult *= 1.45;
+  }
+  if(currentWorld === "Void"){
+    if(vibe.void.some(e=>emojiStr.includes(e)) || has("ghost","dead","nuclear","void","door")) mult *= 1.55;
+    if(brainrot.rarity === "Secret") mult *= 1.10;
+    if(brainrot.rarity === "Exotic") mult *= 1.08;
+  }
+  return mult;
+}
+
+/* ===========================
+   ALL BRAINROTS (images only, raw links)
+=========================== */
+const BRAINROTS = [
+  /* ==== Presents (catchable, $0/sec) ==== */
+  { type:"present", presentKey:"mythic_present", name:"🎁 Mythic Lucky Present", rarity:"Present", earn:0, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4298.jpeg") },
+  { type:"present", presentKey:"godly_present",  name:"🎁 Godly Lucky Present",  rarity:"Present", earn:0, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4300.jpeg") },
+  { type:"present", presentKey:"secret_present", name:"🎁 Secret Lucky Present", rarity:"Present", earn:0, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4299.jpeg") },
+
+  /* ==== Commons ==== */
+  { name:"🐷💣 Svinina Bombardino", rarity:"Common", earn:1, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_0494.webp") },
+  { name:"🍕👾 Noobini Pizzanini", rarity:"Common", earn:2, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4179.webp") },
+  { name:"🐘🌵 Lirli Larila", rarity:"Common", earn:4, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4197.jpeg") },
+  { name:"🕶️🕊️ Frulli Frulla", rarity:"Common", earn:4, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3909.webp") },
+  { name:"🦐🐱 Trippi Troppi", rarity:"Common", earn:6, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_1940.webp") },
+  { name:"🐁💎 Talpa di Ferro", rarity:"Common", earn:8, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4120.webp") },
+  { name:"🥝🦝 Pipi Kiwi", rarity:"Common", earn:15, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3912.jpeg") },
+  { name:"🐰🍑 Follow Me Pipi", rarity:"Common", earn:7, img: "https://raw.githubusercontent.com/skibsmon2/BootyHole/main/IMG_4307.webp" },
+  { name:"🍌🍞 Trulibau Trulibanana", rarity:"Common", earn:9, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4271.webp") },
+
+  /* ==== Uncommon ==== */
+  { name:"🪏😭 Aggarini La Panili", rarity:"Uncommon", earn:160, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4138.png") },
+  { name:"🦀🥥 Crabito Cocosito", rarity:"Uncommon", earn:150, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3999.png") },
+  { name:"🐖🌮 Tipi Topi Taco", rarity:"Uncommon", earn:180, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4187.jpeg") },
+  { name:"🐰🥑🐭 Pipi Avocado", rarity:"Uncommon", earn:220, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4215.webp") },
+
+  /* ==== Rare ==== */
+  { name:"🐭🌽 Pipi Corni", rarity:"Rare", earn:1500, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3975.webp") },
+  { name:"🪵🫖 Ta Ta Ta Sahur", rarity:"Rare", earn:1400, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_0487.webp") },
+  { name:"🔫🦫 Bobrito Bandito", rarity:"Rare", earn:1700, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4128.webp") },
+  { name:"🛞🐸 Boneca Ambalabu", rarity:"Rare", earn:1600, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4125.webp") },
+  { name:"🦶 Gangster Footera", rarity:"Rare", earn:1800, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3976.webp") },
+  { name:"😊🫕 Tri Tri Tri Sahur", rarity:"Rare", earn:1750, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4214.webp") },
+  { name:"🐸🧑‍🏫☔️ Doi Doi Do", rarity:"Rare", earn:1650, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4216.webp") },
+  { name:"📟🏏 Buzz Buzz Buzz Sahur", rarity:"Rare", earn:1680, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4217.webp") },
+  { name:"🍞🤪 Didididi Sahur", rarity:"Rare", earn:1620, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4218.webp") },
+  { name:"🥥🪵 Turon Turon Turon Sahur", rarity:"Rare", earn:1550, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4252.webp") },
+  { name:"🐘🌵 Il Cacto Hipopotamo", rarity:"Rare", earn:1900, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4278.webp") },
+  { name:"🥥🏝️ Perrini Cocosini", rarity:"Rare", earn:1950, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3980.webp") },
+
+  /* ==== Epic ==== */
+  { name:"⚽️🧢 Alessio", rarity:"Epic", earn:5200, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4116.jpeg") },
+  { name:"🦝🥥 Burbaloli Luliloli", rarity:"Epic", earn:5200, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3963.webp") },
+  { name:"🕊️🦶 Pippi Poppa Pippo Peppe (Pigeon Version)", rarity:"Epic", earn:4800, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4181.jpeg") },
+  { name:"🦉🥑 Avocadini Guffo", rarity:"Epic", earn:5000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4182.png") },
+  { name:"🦌🥑 Avocadini Antelopini", rarity:"Epic", earn:4800, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4142.jpeg") },
+  { name:"🦶🥒 Tric Trac Baraboom", rarity:"Epic", earn:5200, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3977.png") },
+  { name:"🥤☕️🗡️🥋 Cappucino Assassino", rarity:"Epic", earn:5600, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3917.png") },
+  { name:"🐱🐟 Trulimero Trulichina", rarity:"Epic", earn:5200, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4119.webp") },
+  { name:"🦔🍍 Snooffi Zeffirulli", rarity:"Epic", earn:4500, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4177.webp") },
+  { name:"🧱🤪 Ti Ti Ti Sahur", rarity:"Epic", earn:4200, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4192.webp") },
+  { name:"🥟🦌 Bambini Crostini", rarity:"Epic", earn:4600, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4198.jpeg") },
+  { name:"🥥🦑 Octopussi Coconussi", rarity:"Epic", earn:6000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4242.png") },
+
+  /* ==== Legendary ==== */
+  { name:"🦧🌳 Brr Brr Patapim", rarity:"Legendary", earn:7000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4112.jpeg") },
+  { name:"🐵🍌 Chimpanzini Bananini", rarity:"Legendary", earn:6900, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_1932.webp") },
+  { name:"🫐🐙 Blueberrini Octopussini", rarity:"Legendary", earn:6900, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_1930.webp") },
+  { name:"🍉🐊 Glorbo Fruttodrillo", rarity:"Legendary", earn:7200, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_0492.webp") },
+  { name:"🥝🦎 Quivioli Ameleonni", rarity:"Legendary", earn:7000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4195.png") },
+  { name:"🥔🐹 Pipi Potato", rarity:"Legendary", earn:6500, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4196.jpeg") },
+  { name:"📠🐓 Tirilikalika Tirilikalako", rarity:"Legendary", earn:7300, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_2325.jpeg") },
+  { name:"🐘☕️ Elefante Cafettino", rarity:"Legendary", earn:7600, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4241.png") },
+  { name:"🍓🦩 Strawberrelli Flamingelli", rarity:"Legendary", earn:7900, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3996.webp") },
+
+  /* ==== Mythic ==== */
+  { name:"🦓🍉 Zibra Zubra Zibralini", rarity:"Mythic", earn:8500, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_1927.webp") },
+  { name:"🦁🌵 Leonelli Cactuselli", rarity:"Mythic", earn:8800, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3913.webp") },
+  { name:"🤪☢️ Centralucci Nuclearucci", rarity:"Mythic", earn:9600, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3993.jpeg") },
+  { name:"🤑🍌 Bananito Bandito", rarity:"Mythic", earn:10000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4160.jpeg") },
+  { name:"🦀🎃 Crabbity Pumpkinitty", rarity:"Mythic", earn:9300, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4161.webp") },
+  { name:"🐊🍍 Crocodillo Ananasino", rarity:"Mythic", earn:9500, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4162.webp") },
+  { name:"🍣🐈 Pussini Susshini", rarity:"Mythic", earn:9400, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_1884.webp") },
+  { name:"🦧🍍 Orangutini Ananasini", rarity:"Mythic", earn:9200, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4183.jpeg") },
+  { name:"🎹🐴 Ecco Cavallo Virtuoso", rarity:"Mythic", earn:9000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4158.jpeg") },
+  { name:"💺👓 Rarerorirararol", rarity:"Mythic", earn:9100, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4204.webp") },
+  { name:"🕊️🕵️ Špijuniro Golubiro", rarity:"Mythic", earn:9800, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4205.webp") },
+  { name:"🍉🦍 Gorillo Watermelondrillo", rarity:"Mythic", earn:9900, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4245.webp") },
+  { name:"🥥🧑‍🏫 Brr Brr Gangster Gusini 🕊️🎩", rarity:"Mythic", earn:9200, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/Images_37.jpeg") },
+  { name:"🍃🥦 Francesco", rarity:"Mythic", earn:9400, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4213.webp") },
+
+  /* ==== Godly ==== */
+  { name:"🤑🏓🥏 Pingpong Kartelino", rarity:"Godly", earn:150000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_6600.png") },
+  { name:"🌊🥺💧🧑‍🚀 Aquanaut", rarity:"Godly", earn:130000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4115.webp") },
+  { name:"💪🦒🍊🎩 Ganganzeli Trulala", rarity:"Godly", earn:125000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_1929.webp") },
+  { name:"✈️🌮 Bombardini Tortini", rarity:"Godly", earn:120000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4167.webp") },
+  { name:"🚽👻 A A A Sahur", rarity:"Godly", earn:110000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4171.webp") },
+  { name:"👀🪘 Dug Dug Dug Dug Bedug Dug", rarity:"Godly", earn:200000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3926.webp") },
+  { name:"👀🪵 Tung Tung Tung Sahur", rarity:"Godly", earn:110000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_1734.webp") },
+  { name:"🦈🥿 Tralalero Tralala", rarity:"Godly", earn:95000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4107.webp") },
+  { name:"🌵🐧 Lerulerulerule", rarity:"Godly", earn:45000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_1928.webp") },
+  { name:"🥃🍋 Brr es Teh Patipum", rarity:"Godly", earn:52000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4113.webp") },
+  { name:"💪🍊 Odin Din Din Dun", rarity:"Godly", earn:78000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3923.webp") },
+  { name:"🚽🚂🦤 Trenostruzzo Turbo 3000", rarity:"Godly", earn:125000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4144.webp") },
+  { name:"🐟🫃 Trippi Troppi Troppa Trippa", rarity:"Godly", earn:110000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_1939.jpeg") },
+  { name:"🐵🕶️ Matteo", rarity:"Godly", earn:28000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4193.jpeg") },
+  { name:"🚬☕️ Espresso Signora", rarity:"Godly", earn:32000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4194.webp") },
+  { name:"🩰🥛 Ballerino Lololo", rarity:"Godly", earn:30000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4129.png") },
+  { name:"🚜🥔 Bulbito Bandito Traktorito", rarity:"Godly", earn:160000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3233.webp") },
+  { name:"⚫️🦈 Orcalero Orcala", rarity:"Godly", earn:140000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4135.webp") },
+  { name:"🦜🍌 Toucanno Banano", rarity:"Godly", earn:30000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4174.png") },
+  { name:"🐘🥥 Cocofanto Elefanto", rarity:"Godly", earn:18000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4206.png") },
+  { name:"🍇🚲 Vinny", rarity:"Godly", earn:135000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/Vinny.webp.png") },
+  { name:"🥝💰 Kiwito Bandito", rarity:"Godly", earn:145000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4287.jpeg") },
+  { name:"🥦🧐 Antonio", rarity:"Godly", earn:90000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4212.webp") },
+  { name:"🐷🍅 Gingobalo Gingobali", rarity:"Godly", earn:85000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4211.jpeg") },
+
+  /* ==== Secret ==== */
+  { name:"🌎📺🦶 Il Mastodontico Telepiedone Planetario", rarity:"Secret", earn:3000000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_2162.webp") },
+  { name:"🪵🐘🐸🦐🦈👀 La Grande Combinazione", rarity:"Secret", earn:2600000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_2513.webp") },
+  { name:"📢📕 Tang Tang Keletang", rarity:"Secret", earn:2200000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4168.webp") },
+  { name:"🍳🥞👀 Darr Dirr Dorr Durr Telur Dadar", rarity:"Secret", earn:2100000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3995.webp") },
+  { name:"🌮🚲 Tacorita Bicicletea", rarity:"Secret", earn:2000000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4166.png") },
+  { name:"📲💀 Pot Hotspot", rarity:"Secret", earn:1900000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3915.webp") },
+  { name:"🪨🦶🥺🦶 Malamé Amaralé", rarity:"Secret", earn:1850000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3978.png") },
+  { name:"🚲🍕 Pizzanini Bicletera", rarity:"Secret", earn:1750000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4137.webp") },
+  { name:"🐏💎 Saphiri Ramiri", rarity:"Secret", earn:1700000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_2638.jpeg") },
+  { name:"👀 Karkekar Kurkur 🌐💺", rarity:"Secret", earn:1650000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4202.webp") },
+  { name:"💺 Chachechi 🔴", rarity:"Secret", earn:1600000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4201.webp") },
+  { name:"👁️ Te Te Te Sahur 🚪", rarity:"Secret", earn:1550000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_2420.webp") },
+  { name:"🍭🚲 Pirulitoita Bicicletaire", rarity:"Secret", earn:1600000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_1882.webp") },
+  { name:"🎰🚲 Chicleteira Bicicleteira", rarity:"Secret", earn:1500000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_2075.webp") },
+  { name:"🪵🥺 Los Tungtungtungcitos", rarity:"Secret", earn:1450000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3997.webp") },
+  { name:"🐊🧀 Coccodrillo Formaggioso", rarity:"Secret", earn:1450000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4139.png") },
+  { name:"🦈⚫️ Los Orcaleritos", rarity:"Secret", earn:1400000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4108.png") },
+  { name:"🐪🌵 Tob Tobi Tob", rarity:"Secret", earn:1400000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_2521.webp") },
+  { name:"🐢🍇 Torrtuginni Dragonfrutinni", rarity:"Secret", earn:1350000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_2529.webp") },
+  { name:"🥭🐅 Tigrulli Grapefrutunni", rarity:"Secret", earn:1650000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_2530.webp") },
+  { name:"🚌🕋 Rang Ring Reng Bus Ireng", rarity:"Secret", earn:1550000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4141.webp") },
+  { name:"✂️👀 Sisscorsss Sisscorsss y mi amigo Tung Tung Tung Sahur", rarity:"Secret", earn:1900000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_1667.webp") },
+  { name:"🐄🪐 La Vacca Saturno Saturnita", rarity:"Secret", earn:800000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_0493.webp") },
+  { name:"🍇🦑 Graipuss Medussi", rarity:"Secret", earn:900000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4159.jpeg") },
+  { name:"🏠📚 Alamak Senin Sekolah", rarity:"Secret", earn:2600000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_2431.webp") },
+  { name:"📣🏰 Anpali Babel", rarity:"Secret", earn:2750000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4305.webp") },
+
+  /* ==== Exotic ==== */
+  { name:"🍝🐉 Dragon Canelloni", rarity:"Exotic", earn:300000000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3991.jpeg") },
+  { name:"🍝🚽 Spaghetti Tualetti", rarity:"Exotic", earn:240000000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_1925.webp") },
+  { name:"🧂🍯 Garama and Madungdung", rarity:"Exotic", earn:260000000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4164.png") },
+  { name:"🥙 Ketupat Kepat", rarity:"Exotic", earn:220000000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_2519.webp") },
+  { name:"🏠9️⃣👅👀 La Esok Sekolah", rarity:"Exotic", earn:200000000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3924.webp") },
+  { name:"🧀🦖 Gorgonzilla", rarity:"Exotic", earn:380000000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4173.webp") },
+  { name:"🥭📵 Celularcini Viciosini", rarity:"Exotic", earn:140000000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4289.webp") },
+  { name:"🥭🥝 Mangolo Mangolini", rarity:"Exotic", earn:120000000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4288.webp") }
+];
+
+/* ===========================
+   LUCKY PRESENT CONTENTS (unobtainable by normal catching)
+=========================== */
+const PRESENT_LOOT = {
+  // weights follow your % style (85/21/3/1/0.5) but we treat as weighted chances
+  secret_present: [
+    { w:85, name:"💼💼💼 Job Job Job Sahur", rarity:"Secret", earn:1600000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_3255.webp") },
+    { w:21, name:"🐻🌲 Wildernessini Bearini", rarity:"Secret", earn:1700000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4301.png") },
+    { w:3,  name:"🧾 Si Tatang Pergi Beli Tang", rarity:"Secret", earn:1900000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4302.jpeg") },
+    { w:1,  name:"🗣️ Lu Per Pep Per Dal Pe Der Per Pere Pe Per", rarity:"Secret", earn:2200000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4317.png") },
+    { w:0.5,name:"💸 Money Money Bringit Sahur", rarity:"Secret", earn:2400000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4318.png") }
+  ],
+  godly_present: [
+    { w:85, name:"🧲 Ferro Ferro Ferro Sahur", rarity:"Godly", earn:85000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_2496.webp") },
+    { w:21, name:"🚽🫚 Ginger Cisterna", rarity:"Godly", earn:95000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/958FF731-34BA-46EA-BDCA-FE8BE622DC33.png") },
+    { w:3,  name:"🐷⚡ Porco Electronico", rarity:"Godly", earn:120000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4312.webp") },
+    { w:1,  name:"🐱🌯 Purrito", rarity:"Godly", earn:140000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4320.webp") },
+    { w:0.5,name:"💣 Bam Bam Bombaccino", rarity:"Godly", earn:160000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_2129.webp") }
+  ],
+  mythic_present: [
+    { w:85, name:"🐯🍉 Tigrrullini Watermellini", rarity:"Mythic", earn:9800, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4290.png") },
+    { w:21, name:"🌫️🍃 Misty Mint", rarity:"Mythic", earn:9400, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4316.webp") },
+    { w:3,  name:"🦈🥥 Tralalero Cocosini", rarity:"Mythic", earn:9600, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4291.webp") },
+    { w:1,  name:"🌍🌍🌍 Earth Earth Earth Sahur", rarity:"Mythic", earn:9900, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4292.png") },
+    { w:0.5,name:"🇫🇷🥖 Pipi Frenchie", rarity:"Mythic", earn:10000, img: blobToRaw("https://github.com/skibsmon2/BootyHole/blob/main/IMG_4328.png") }
+  ]
+};
+
+/* ===========================
+   SPAWN WEIGHTS + PITY TIMERS (guaranteed-for-sure timers)
+=========================== */
+const RARITY_WEIGHT = {
+  Present: 3.0,
+  Common: 42,
+  Uncommon: 22,
+  Rare: 16,
+  Epic: 10,
+  Legendary: 6.5,
+  Mythic: 3.5,
+  Godly: 1.7,
+  Secret: 0.9,
+  Exotic: 0.35
+};
+// "for sure" timers (you said: Legendary 5m, Mythic 10m, Godly 30m, Secret >5h)
+const PITY_MS = {
+  Legendary: 5 * 60 * 1000,
+  Mythic: 10 * 60 * 1000,
+  Godly: 30 * 60 * 1000,
+  Secret: 5 * 60 * 60 * 1000
+};
+
+/* ===========================
+   SAVE
+=========================== */
+const SAVE_KEY = "collect_the_brainrots_FULL_RELEASE_FINAL";
+const DEFAULT_SAVE = {
+  money: 30,
+  rebirth: 1,
+  world: "Park",
+  owned: [], // { id, variantKey, level } OR { present:true, presentKey, variantKey, level:1 }
+  luckMult: 1,
+  luckUntil: 0,
+  rolls: 0,
+  lastSpawnAt: { Legendary:0, Mythic:0, Godly:0, Secret:0 },
+  unlockedBases: { default:true },
+  baseTheme: "default",
+  redeemed: { RELEASE:false }
+};
+let state = loadSave();
+
+function loadSave(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return structuredClone(DEFAULT_SAVE);
+    const s = JSON.parse(raw);
+    if(!s || typeof s!=="object") return structuredClone(DEFAULT_SAVE);
+    s.money = Number(s.money ?? 30);
+    s.rebirth = Number(s.rebirth ?? 1);
+    s.world = String(s.world || "Park");
+    s.owned = Array.isArray(s.owned) ? s.owned : [];
+    s.luckMult = Number(s.luckMult ?? 1);
+    s.luckUntil = Number(s.luckUntil ?? 0);
+    s.rolls = Number(s.rolls ?? 0);
+    s.lastSpawnAt = s.lastSpawnAt || { Legendary:0, Mythic:0, Godly:0, Secret:0 };
+    s.unlockedBases = s.unlockedBases || { default:true };
+    s.baseTheme = s.baseTheme || "default";
+    s.redeemed = s.redeemed || { RELEASE:false };
+    return s;
+  }catch{
+    return structuredClone(DEFAULT_SAVE);
+  }
+}
+function save(){ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
+
+/* ===========================
+   BASE THEMES (aquatic background, plus unlocks)
+=========================== */
+const BASE_THEMES = {
+  default: { name:"Default", css:"linear-gradient(135deg, rgba(0,0,0,.22), rgba(255,255,255,.10))" },
+  pasta:   { name:"🍝 Pasta Base", css:"linear-gradient(135deg, rgba(255,196,120,.40), rgba(255,120,60,.25))" },
+  gold:    { name:"⭐ Gold Base", css:"linear-gradient(135deg, rgba(255,215,0,.40), rgba(255,255,255,.12))" },
+  diamond: { name:"💎 Diamond Base", css:"linear-gradient(135deg, rgba(120,220,255,.35), rgba(255,255,255,.12))" },
+  ruby:    { name:"🔴 Ruby Base", css:"linear-gradient(135deg, rgba(255,60,120,.35), rgba(255,255,255,.10))" },
+  emerald: { name:"💚 Emerald Base", css:"linear-gradient(135deg, rgba(0,255,160,.30), rgba(255,255,255,.10))" }
+};
+
+function ownedHasNameContains(txt){
+  return state.owned.some(o => {
+    if(o.present) return false;
+    const b = BRAINROTS[o.id];
+    return (b?.name || "").includes(txt);
+  });
+}
+function variantIndexedCount(variantKey){
+  const set = new Set();
+  for(const o of state.owned){
+    if(o.present) continue;
+    if(o.variantKey === variantKey) set.add(o.id);
+  }
+  return set.size;
+}
+function variantIndexedPct(variantKey){
+  return variantIndexedCount(variantKey) / Math.max(1, BRAINROTS.filter(b=>b.rarity!=="Present").length);
+}
+
+function unlockBasesIfEarned(){
+  state.unlockedBases.default = true;
+
+  // Pasta base: own Dragon Canelloni (any variant)
+  if(ownedHasNameContains("Dragon Canelloni")) state.unlockedBases.pasta = true;
+
+  // 75% indexed of each variant
+  if(variantIndexedPct("Gold") >= 0.75) state.unlockedBases.gold = true;
+  if(variantIndexedPct("Diamond") >= 0.75) state.unlockedBases.diamond = true;
+  if(variantIndexedPct("Ruby") >= 0.75) state.unlockedBases.ruby = true;
+  if(variantIndexedPct("Emerald") >= 0.75) state.unlockedBases.emerald = true;
+
+  if(!state.unlockedBases[state.baseTheme]) state.baseTheme = "default";
+}
+function applyBaseTheme(){
+  const box = document.getElementById("basePanel");
+  const skin = BASE_THEMES[state.baseTheme] || BASE_THEMES.default;
+  box.style.background = skin.css;
+  document.getElementById("baseSkinName").textContent = skin.name;
+}
+
+/* ===========================
+   REBIRTH + SLOTS
+=========================== */
+function maxSlots(){
+  if(state.rebirth >= 3) return 14;
+  if(state.rebirth >= 2) return 12;
+  return 10;
+}
+function countOwnedNameIncludes(txt){
+  let c=0;
+  for(const o of state.owned){
+    if(o.present) continue;
+    const b = BRAINROTS[o.id];
+    if(b && b.name.includes(txt)) c++;
+  }
+  return c;
+}
+function canRebirth(){
+  if(state.rebirth === 1){
+    return countOwnedNameIncludes("Pipi Corni") >= 2 && countOwnedNameIncludes("Pipi Kiwi") >= 1;
+  }
+  if(state.rebirth === 2){
+    return ownedHasNameContains("Gangster Footera") && ownedHasNameContains("Burbaloli Luliloli");
+  }
+  return false;
+}
+function doRebirth(){
+  if(!canRebirth()){
+    alert(
+      state.rebirth===1
+        ? "To Rebirth 2: you need 2× Pipi Corni and 1× Pipi Kiwi."
+        : state.rebirth===2
+          ? "To Rebirth 3: you need Gangster Footera and Burbaloli Luliloli."
+          : "Max rebirth reached."
+    );
+    return;
+  }
+  state.rebirth += 1;
+  state.money = 0;
+  save();
+  renderAll();
+  alert("REBIRTH COMPLETE! Money reset, characters kept.");
+}
+
+/* ===========================
+   LUCK
+=========================== */
+function currentLuckMult(){
+  if(state.luckUntil && nowMs() < state.luckUntil) return Math.max(1, state.luckMult || 1);
+  return 1;
+}
+function luckRemainingSec(){
+  if(!state.luckUntil) return 0;
+  return Math.max(0, Math.floor((state.luckUntil - nowMs())/1000));
+}
+function buyLuck(mult, cost){
+  if(state.money < cost){ alert("Not enough money."); return; }
+  state.money -= cost;
+  state.luckMult = mult;
+  state.luckUntil = nowMs() + 15*60*1000;
+  save();
+  renderTop();
+  renderLuckShop();
+}
+
+/* ===========================
+   LEVELING
+=========================== */
+function levelCost(level){
+  return Math.floor(250 * Math.pow(1.16, level));
+}
+function earningsWithLevel(baseEarn, mult, level){
+  const bonus = 1 + (level * 0.05); // Lv100 = 6x base
+  return Math.floor(baseEarn * mult * bonus);
+}
+
+/* ===========================
+   MONEY PER SECOND
+=========================== */
+function moneyPerSec(){
+  let total = 0;
+  for(const o of state.owned){
+    if(o.present) continue; // presents make 0/sec
+    const b = BRAINROTS[o.id]; if(!b) continue;
+    const v = getVariantByKey(o.variantKey);
+    const lvl = Number(o.level || 1);
+    total += earningsWithLevel(b.earn, v.mult, lvl);
+  }
+  return total;
+}
+
+/* ===========================
+   SPAWN LOGIC
+=========================== */
+function eligibleBrainrots(){
+  // normal catching pool: ALL non-present brainrots + presents (presents are catchable)
+  return BRAINROTS;
+}
+function pickByWeight(items){
+  let total = 0;
+  const weights = items.map(b=>{
+    const base = RARITY_WEIGHT[b.rarity] ?? 1;
+    const rarityBias = worldRarityBiasMultiplier(b.rarity);
+    const affinity = worldAffinityMultiplier(b);
+    const w = base * rarityBias * affinity;
+    total += w;
+    return w;
+  });
+
+  let r = Math.random() * total;
+  for(let i=0;i<items.length;i++){
+    r -= weights[i];
+    if(r <= 0) return items[i];
+  }
+  return items[0];
+}
+function pickWithPity(){
+  const now = nowMs();
+  const last = state.lastSpawnAt || { Legendary:0, Mythic:0, Godly:0, Secret:0 };
+
+  // guaranteed-for-sure: only for non-present rarity targets
+  for(const rare of ["Secret","Godly","Mythic","Legendary"]){
+    const due = PITY_MS[rare];
+    if(due && now - (last[rare] || 0) >= due){
+      const pool = eligibleBrainrots().filter(b=>b.rarity===rare);
+      if(pool.length){
+        last[rare] = now;
+        state.lastSpawnAt = last;
+        return pool[Math.floor(Math.random()*pool.length)];
+      }
+    }
+  }
+
+  const b = pickByWeight(eligibleBrainrots());
+  if(last[b.rarity] !== undefined) last[b.rarity] = now;
+  state.lastSpawnAt = last;
+  return b;
+}
+
+/* ===========================
+   PRESENT OPENING
+=========================== */
+function pickWeightedLoot(list){
+  const total = list.reduce((a,x)=>a + x.w, 0);
+  let r = Math.random() * total;
+  for(const it of list){
+    r -= it.w;
+    if(r <= 0) return it;
+  }
+  return list[0];
+}
+function openPresentAtIndex(ownedIndex){
+  const o = state.owned[ownedIndex];
+  if(!o?.present) return;
+
+  const lootList = PRESENT_LOOT[o.presentKey];
+  if(!lootList || !lootList.length){
+    alert("This present has no loot set.");
+    return;
+  }
+
+  const won = pickWeightedLoot(lootList);
+  // roll a variant for the brainrot you get
+  const v = rollVariant();
+
+  // consume present
+  state.owned.splice(ownedIndex, 1);
+
+  // add new brainrot into BRAINROTS if not already there (present-only brainrots)
+  // We keep them separate (not in catch pool), so we add them as a hidden catalog item.
+  // But for owning, we store it in "specialOwned" form to avoid catch pool.
+  // Easiest: push to a separate array and render from it.
+  // Simpler: store it as presentLootOwned object.
+  state.owned.push({ loot:true, lootData: won, variantKey: v.key, level: 1 });
+
+  save();
+  renderAll();
+  showAlert("🎉 You opened the present!", "");
+}
+
+/* ===========================
+   UI HELPERS
+=========================== */
+function rarityColor(r){
+  return ({
+    Present:"#67e8f9",
+    Common:"#a7f3d0",
+    Uncommon:"#93c5fd",
+    Rare:"#c4b5fd",
+    Epic:"#f0abfc",
+    Legendary:"#fdba74",
+    Mythic:"#f87171",
+    Godly:"#fde047",
+    Secret:"#fb7185",
+    Exotic:"#22c55e"
+  }[r] || "#fff");
+}
+function showAlert(text, cls){
+  const a = document.getElementById("alerts");
+  a.className = "";
+  if(cls) a.classList.add(cls);
+  a.textContent = text;
+  setTimeout(()=>{
+    a.className = "small";
+    a.textContent = "Spawn 1 → try to catch. Miss = it flees and disappears.";
+  }, 2400);
+}
+function spawnCardHTML(b, v, earned, chancePct){
+  const rcol = rarityColor(b.rarity);
+  return `
+    <img src="${b.img}" alt="">
+    <div class="meta">
+      <div class="name">${b.name}</div>
+      <div class="line"><span class="tag" style="border-color:${rcol}; color:${rcol}">${b.rarity}</span></div>
+      <div class="line">${v.label}</div>
+      <div class="line">💰 ${fmt(earned)}/sec</div>
+      <div class="line">🎯 Catch: ${chancePct}%</div>
+      ${b.type==="present" ? `<div class="line small">🎁 Open later in your base (present makes $0/sec)</div>` : ``}
+    </div>
+  `;
+}
+
+/* ===========================
+   RENDER
+=========================== */
+const moneyEl = document.getElementById("money");
+const mpsEl = document.getElementById("mps");
+const slotsUsedEl = document.getElementById("slotsUsed");
+const slotsMaxEl = document.getElementById("slotsMax");
+const rebirthEl = document.getElementById("rebirth");
+const worldNameEl = document.getElementById("worldName");
+const rollsEl = document.getElementById("rolls");
+const luckEl = document.getElementById("luck");
+const luckTimeEl = document.getElementById("luckTime");
+const spawnGrid = document.getElementById("spawnGrid");
+const baseList = document.getElementById("baseList");
+const indexBox = document.getElementById("indexBox");
+const worldTabs = document.getElementById("worldTabs");
+const baseSkinSelect = document.getElementById("baseSkinSelect");
+
+function renderWorldTabs(){
+  worldTabs.innerHTML = "";
+  for(const w of WORLDS){
+    const div = document.createElement("div");
+    div.className = "tab" + (currentWorld===w.key ? " active":"");
+    div.textContent = w.label;
+    div.onclick = ()=>{
+      currentWorld = w.key;
+      state.world = w.key;
+      save();
+      renderWorldTabs();
+      renderTop();
+    };
+    worldTabs.appendChild(div);
+  }
+}
+function renderTop(){
+  moneyEl.textContent = fmt(state.money);
+  mpsEl.textContent = fmt(moneyPerSec());
+  rebirthEl.textContent = String(state.rebirth);
+  slotsUsedEl.textContent = String(state.owned.length);
+  slotsMaxEl.textContent = String(maxSlots());
+  worldNameEl.textContent = currentWorld;
+  rollsEl.textContent = fmt(state.rolls);
+
+  const lm = currentLuckMult();
+  luckEl.textContent = lm + "x";
+  const rem = luckRemainingSec();
+  luckTimeEl.textContent = rem>0 ? `(${rem}s)` : "";
+}
+function renderBaseSkinSelect(){
+  unlockBasesIfEarned();
+  baseSkinSelect.innerHTML = "";
+  const keys = Object.keys(BASE_THEMES);
+  for(const k of keys){
+    if(!state.unlockedBases[k]) continue;
+    const opt = document.createElement("option");
+    opt.value = k;
+    opt.textContent = BASE_THEMES[k].name;
+    if(state.baseTheme === k) opt.selected = true;
+    baseSkinSelect.appendChild(opt);
+  }
+  baseSkinSelect.onchange = ()=>{
+    const val = baseSkinSelect.value;
+    if(state.unlockedBases[val]){
+      state.baseTheme = val;
+      save();
+      applyBaseTheme();
+      renderBaseSkinSelect();
+    }
+  };
+  applyBaseTheme();
+}
+
+function renderBase(){
+  baseList.innerHTML = "";
+  if(state.owned.length === 0){
+    const empty = document.createElement("div");
+    empty.className = "card";
+    empty.innerHTML = `<div class="meta">
+      <div class="name">No Brainrots yet.</div>
+      <div class="line">Click “Spawn 1” and start catching!</div>
+    </div>`;
+    baseList.appendChild(empty);
+    return;
+  }
+
+  state.owned.forEach((o, idx)=>{
+    // Present owned
+    if(o.present){
+      const p = { name:"🎁 " + (o.presentKey==="mythic_present"?"Mythic Lucky Present":o.presentKey==="godly_present"?"Godly Lucky Present":"Secret Lucky Present"),
+                  rarity:"Present", earn:0,
+                  img: (BRAINROTS.find(b=>b.type==="present" && b.presentKey===o.presentKey)?.img) };
+      const v = getVariantByKey(o.variantKey || "Normal");
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${p.img}" alt="">
+        <div class="meta">
+          <div class="name">${p.name}</div>
+          <div class="line">${v.label}</div>
+          <div class="line">💰 $0/sec</div>
+          <div class="line small">Press OPEN to get a new brainrot inside.</div>
+        </div>
+        <div class="actions">
+          <button class="good">Open</button>
+          <button class="warn">Remove</button>
+        </div>
+      `;
+      card.querySelector("button.good").onclick = ()=> openPresentAtIndex(idx);
+      card.querySelector("button.warn").onclick = ()=>{
+        state.owned.splice(idx,1);
+        save(); renderAll();
+      };
+      baseList.appendChild(card);
+      return;
+    }
+
+    // Loot brainrot owned (from presents)
+    if(o.loot){
+      const b = o.lootData;
+      const v = getVariantByKey(o.variantKey);
+      const lvl = Number(o.level || 1);
+      const earned = earningsWithLevel(b.earn, v.mult, lvl);
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${b.img}" alt="">
+        <div class="meta">
+          <div class="name">${b.name}</div>
+          <div class="line"><span class="tag" style="border-color:${rarityColor(b.rarity)}; color:${rarityColor(b.rarity)}">${b.rarity} (Present-Only)</span></div>
+          <div class="line">${v.label}</div>
+          <div class="line">⭐ Level ${lvl}/100</div>
+          <div class="line">💰 ${fmt(earned)}/sec</div>
+          <div class="line small">⬆️ Next level cost: $${fmt(levelCost(lvl))}</div>
+        </div>
+        <div class="actions">
+          <button class="good">Level Up</button>
+          <button class="warn">Remove</button>
+        </div>
+      `;
+      card.querySelector("button.good").onclick = ()=>{
+        if(lvl >= 100){ alert("Max level!"); return; }
+        const cost = levelCost(lvl);
+        if(state.money < cost){ alert("Not enough money."); return; }
+        state.money -= cost;
+        o.level = lvl + 1;
+        save(); renderAll();
+      };
+      card.querySelector("button.warn").onclick = ()=>{
+        state.owned.splice(idx,1);
+        save(); renderAll();
+      };
+      baseList.appendChild(card);
+      return;
+    }
+
+    // Normal brainrot owned
+    const b = BRAINROTS[o.id]; if(!b) return;
+    const v = getVariantByKey(o.variantKey);
+    const lvl = Number(o.level || 1);
+    const earned = earningsWithLevel(b.earn, v.mult, lvl);
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <img src="${b.img}" alt="">
+      <div class="meta">
+        <div class="name">${b.name}</div>
+        <div class="line">${v.label}</div>
+        <div class="line">⭐ Level ${lvl}/100</div>
+        <div class="line">💰 ${fmt(earned)}/sec</div>
+        <div class="line small">⬆️ Next level cost: $${fmt(levelCost(lvl))}</div>
+      </div>
+      <div class="actions">
+        <button class="good">Level Up</button>
+        <button class="warn">Remove</button>
+      </div>
+    `;
+
+    card.querySelector("button.good").onclick = ()=>{
+      if(lvl >= 100){ alert("Max level!"); return; }
+      const cost = levelCost(lvl);
+      if(state.money < cost){ alert("Not enough money."); return; }
+      state.money -= cost;
+      o.level = lvl + 1;
+      save(); renderAll();
+    };
+    card.querySelector("button.warn").onclick = ()=>{
+      state.owned.splice(idx,1);
+      save(); renderAll();
+    };
+    baseList.appendChild(card);
+  });
+}
+
+function renderIndex(){
+  indexBox.innerHTML = "";
+
+  const goldPct = Math.floor(variantIndexedPct("Gold")*100);
+  const diaPct  = Math.floor(variantIndexedPct("Diamond")*100);
+  const emePct  = Math.floor(variantIndexedPct("Emerald")*100);
+  const rubPct  = Math.floor(variantIndexedPct("Ruby")*100);
+
+  const prog = document.createElement("div");
+  prog.className = "card";
+  prog.innerHTML = `
+    <div class="meta">
+      <div class="name">📊 Variant Index Progress</div>
+      <div class="line">⭐ Gold: ${goldPct}% (unlock base at 75%)</div>
+      <div class="line">💎 Diamond: ${diaPct}% (unlock base at 75%)</div>
+      <div class="line">💚 Emerald: ${emePct}% (unlock base at 75%)</div>
+      <div class="line">🔴 Ruby: ${rubPct}% (unlock base at 75%)</div>
+      <div class="line small">🍝 Pasta base unlock: own Dragon Canelloni</div>
+    </div>
+  `;
+  indexBox.appendChild(prog);
+
+  const ownedSet = new Set(state.owned.filter(o=>!o.present && !o.loot).map(o=>o.id));
+  const order = ["Present","Common","Uncommon","Rare","Epic","Legendary","Mythic","Godly","Secret","Exotic"];
+
+  for(const r of order){
+    const head = document.createElement("div");
+    head.className = "card";
+    head.innerHTML = `<div class="meta"><div class="name">${r}</div><div class="line">All ${r} entries</div></div>`;
+    indexBox.appendChild(head);
+
+    BRAINROTS.map((b,i)=>({b,i}))
+      .filter(x=>x.b.rarity===r)
+      .forEach(x=>{
+        const own = ownedSet.has(x.i);
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${x.b.img}" alt="">
+          <div class="meta">
+            <div class="name">${own ? "✅ " : "⬜ "}${x.b.name}</div>
+            <div class="line">Base: ${fmt(x.b.earn)}/sec</div>
+          </div>
+        `;
+        indexBox.appendChild(card);
+      });
+  }
+}
+
+function renderLuckShop(){
+  const luckShopEl = document.getElementById("luckShop");
+  luckShopEl.innerHTML = "";
+
+  const items = [
+    { mult:2,  cost:50000 },
+    { mult:4,  cost:250000 },
+    { mult:6,  cost:1000000 },
+    { mult:8,  cost:5000000 },
+    { mult:10, cost:20000000 },
+  ];
+
+  items.forEach(it=>{
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="meta">
+        <div class="name">🍀 ${it.mult}x Luck</div>
+        <div class="line">⏱️ 15 minutes</div>
+        <div class="line">💰 Cost: $${fmt(it.cost)}</div>
+      </div>
+      <div class="actions">
+        <button class="good">Buy</button>
+      </div>
+    `;
+    card.querySelector("button").onclick = ()=> buyLuck(it.mult, it.cost);
+    luckShopEl.appendChild(card);
+  });
+}
+
+function renderAll(){
+  unlockBasesIfEarned();
+  renderTop();
+  renderWorldTabs();
+  renderBaseSkinSelect();
+  renderBase();
+  renderIndex();
+  renderLuckShop();
+}
+
+/* ===========================
+   SPAWN ONE + CATCH (FLEE DISAPPEARS)
+=========================== */
+function spawnOne(){
+  spawnGrid.innerHTML = "";
+  state.rolls += 1;
+  save();
+
+  const b = pickWithPity();
+  const v = rollVariant();
+
+  let chance = (CATCH[b.rarity] || 0.1) * currentLuckMult();
+  chance = Math.min(chance, 0.95);
+  const chancePct = Math.round(chance*100);
+
+  // presents make 0/sec
+  const earned = (b.rarity==="Present" ? 0 : earningsWithLevel(b.earn, v.mult, 1));
+
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = spawnCardHTML(b, v, earned, chancePct) + `
+    <div class="actions">
+      <button class="good" id="catchBtn">Catch</button>
+    </div>
+  `;
+
+  if(b.rarity === "Godly"){
+    showAlert("🔥A Godly Has Spawned!🔥", "alert-godly");
+  }else if(b.rarity === "Secret"){
+    showAlert("☄️A Secret Has Spawned!🐦‍🔥", "alert-secret");
+  }
+
+  card.querySelector("#catchBtn").onclick = ()=> tryCatch(b, v, card);
+  spawnGrid.appendChild(card);
+
+  renderTop();
+}
+
+function tryCatch(brainrot, variant, cardEl){
+  if(state.owned.length >= maxSlots()){
+    alert("Your base is full! Remove something first.");
+    return;
+  }
+
+  const btn = cardEl.querySelector("button");
+  btn.disabled = true;
+  btn.textContent = "…";
+
+  let chance = (CATCH[brainrot.rarity] || 0.1) * currentLuckMult();
+  chance = Math.min(chance, 0.95);
+
+  if(Math.random() <= chance){
+    // If present: store as present object
+    if(brainrot.type==="present"){
+      state.owned.push({ present:true, presentKey: brainrot.presentKey, variantKey: variant.key, level:1 });
+    }else{
+      const id = BRAINROTS.indexOf(brainrot);
+      state.owned.push({ id, variantKey: variant.key, level: 1 });
+    }
+
+    save();
+    unlockBasesIfEarned();
+    renderAll();
+    spawnGrid.innerHTML = "";
+  }else{
+    spawnGrid.innerHTML = "";
+    showAlert("💨 It fled! Spawn another one.", "");
+    renderTop();
+  }
+}
+
+/* ===========================
+   CODE REDEEM
+=========================== */
+function addRainbowNoobini(){
+  // find Noobini
+  const idx = BRAINROTS.findIndex(b => b.name.includes("Noobini Pizzanini") && b.rarity==="Common");
+  if(idx < 0){ alert("Noobini not found."); return; }
+  if(state.owned.length >= maxSlots()){
+    alert("Your base is full! Remove something first.");
+    return;
+  }
+  state.owned.push({ id: idx, variantKey:"Rainbow", level:1 });
+}
+function redeemCode(){
+  const inp = document.getElementById("codeInput");
+  const code = (inp.value||"").trim().toUpperCase();
+  if(!code){ alert("Enter a code."); return; }
+
+  if(code === "RELEASE"){
+    if(state.redeemed?.RELEASE){ alert("You already redeemed RELEASE."); return; }
+    addRainbowNoobini();
+    state.redeemed.RELEASE = true;
+    save();
+    renderAll();
+    showAlert("🎉 Code redeemed! You got 🌈 Rainbow Noobini Pizzanini!", "");
+    inp.value = "";
+    return;
+  }
+  alert("Invalid code.");
+}
+
+/* ===========================
+   MONEY TICK
+=========================== */
+setInterval(()=>{
+  state.money += moneyPerSec();
+  save();
+  renderTop();
+}, 1000);
+
+/* ===========================
+   BUTTONS
+=========================== */
+document.getElementById("btnSpawn").onclick = spawnOne;
+
+const btnIndex = document.getElementById("btnIndex");
+btnIndex.onclick = ()=>{
+  const isHidden = indexBox.style.display === "none";
+  indexBox.style.display = isHidden ? "block" : "none";
+  btnIndex.textContent = isHidden ? "Close Index" : "Index";
+};
+
+document.getElementById("btnRebirth").onclick = doRebirth;
+
+document.getElementById("btnReset").onclick = ()=>{
+  if(confirm("Reset save? This deletes money, rebirth, owned, levels, luck, rolls, redeemed codes.")){
+    localStorage.removeItem(SAVE_KEY);
+    state = structuredClone(DEFAULT_SAVE);
+    currentWorld = "Park";
+    renderAll();
+    showAlert("Save reset.", "");
+  }
+};
+
+document.getElementById("btnRedeem").onclick = redeemCode;
+
+/* ===========================
+   INIT
+=========================== */
+currentWorld = state.world || "Park";
+renderAll();
+</script>
+</body>
+</html>
